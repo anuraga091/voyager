@@ -17,3 +17,11 @@ export const fetchTransactions = async (page, limit) => {
   }
 };
 
+// export const fetchTransactionData = async (hash, block_number) => {
+//   try {
+
+//   } catch (error){
+
+//   }
+// }
+

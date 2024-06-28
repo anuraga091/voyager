@@ -60,3 +60,19 @@ h3{
 .change-color{
   filter: invert(43%) sepia(100%) saturate(6%) hue-rotate(1deg) brightness(97%) contrast(83%);
 }
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  border-top-color: #4a5568;
+  /* Change this to match the desired color */
+  animation: spin 1s linear infinite;
+}

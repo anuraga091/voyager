@@ -26,7 +26,13 @@ module.exports = {
         l1HandlerText: 'rgb(255, 255, 255)',
         l1HandlerBorder: 'rgb(94, 94, 94)',
         activeColor: 'rgb(75, 75, 75)',
-
+        tooltipBackground: 'rgb(235,235,235)',
+        customGreen: 'rgb(17, 125, 73)',
+        executionResourcesColor: 'rgb(255, 200, 153)',
+        executionResourcesBgColor: 'rgb(59, 42, 28)',
+        executionResourcesBorderColor: 'rgb(88, 63, 42)',
+        hoveractiveColor: 'rgba(74, 74, 74, 0.5)',
+        callDataBg: 'rgb(37, 37, 37)',
       },
       fontSize: {
         sm: '10px',
