@@ -28,7 +28,8 @@ const OverviewTab = () => {
                 l1_gas: 0,
                 l1_data_gas: 192
             }
-        }
+        },
+        signatures: ['0x607a309ffb73ecc1b0f5f23938807543295072f677857e0c28f0df7d5028e38', '0x607a309ffb73ecc1b0f5f23938807543295072f677857e0c28f0df7d5028e38']
     };
 
     
@@ -207,10 +208,10 @@ const OverviewTab = () => {
                             <p className='rounded border border-executionResourcesBorderColor bg-executionResourcesBgColor text-executionResourcesColor text-base ml-1 px-2'>{transaction.execution_resources.ec_op_builtin_applications} EC_OP_BUILTIN</p>
                         </div>
                     </div>
-                </div>
+                </div> 
             </div>
         </div>
-        {/* CallData Component */}
+        {/* --------------------------------CallData Component -----------------------------------------------*/}
         <div className="flex mt-4">
             <div className='flex justify-center items-start'>
                 <Tooltip text="Calldata that was sent in the transaction">
@@ -247,6 +248,27 @@ const OverviewTab = () => {
                     </div>
                 )}
             </div>
+        </div>
+        <div className="flex">
+            <div className='flex justify-center items-center'>
+                <Tooltip text="Signature(s) of the transaction">
+                    <img src="/question-mark.svg" alt="question mark" height={20} width={20} className='mr-2'/>
+                </Tooltip>
+                <p className='text-base w-48'>SIGNATURE(S):</p>
+            </div>
+            <div className='flex-1 mt-4' >
+            {
+                transaction.signatures.map((sign, index) => (
+                    <div className='flex justify-between border-b border-customTableBorder py-2' key={index}>
+                        <p className='inline-block text-xl' >{sign}</p>
+                        <button className="ml-2 p-1" onClick={() => navigator.clipboard.writeText(sign)}>
+                            <img src="/copy-white.png" alt="copy" className=' ml-1 mt-1 w-4 h-4 change-color' />
+                        </button>
+                    </div>              
+                ))
+            }
+            </div>
+            
         </div>
         
     </div>

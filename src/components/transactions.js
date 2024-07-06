@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { fetchTransactions } from '../services/api';
 import '../App.css'
 import { formatString, formatDate } from '../utils/formatter';
@@ -22,46 +22,48 @@ const Transactions = () => {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const isFetching = useRef(false); // Ref to track if a fetch is in progress
 
 
-
-  
-
- useEffect(() => {
   const loadTransactions = async () => {
+    if (isFetching.current) return; // Prevent duplicate calls
+    isFetching.current = true;
     setIsLoading(true);
     try {
       const data = await fetchTransactions(page, 20);
-      console.log(data)
-      setTransactions(prev => [...prev, ...data]);
-      setIsLoading(false);
+      setTransactions((prev) => [...prev, ...data]);
 
       if (data.length === 0 || data.length < 20) {
-        setHasMore(false); 
+        setHasMore(false);
+      } else {
+        setPage((prev) => prev + 1);
       }
-      setPage(prev => prev + 1); 
     } catch (error) {
-      //setError('Failed to fetch transactions');
       console.error(error);
-      setIsLoading(false);
-
     }
+    setIsLoading(false);
+    isFetching.current = false; // Reset fetch tracker
   };
 
-  loadTransactions();
+  useEffect(() => {
+    loadTransactions();
+  }, []); // Initial load
 
-  const handleScroll = () => {
-    if (window.innerHeight + document.documentElement.scrollTop + 1 >= document.documentElement.offsetHeight) {
-      if (!isLoading[page] && hasMore) {
-        loadTransactions();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop + 1 >= document.documentElement.offsetHeight) {
+        if (!isLoading && hasMore) {
+          loadTransactions();
+        }
       }
-    }
-  };
+    };
 
-  window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoading, hasMore]); // Add dependencies to control re-renders
 
-  return () => window.removeEventListener('scroll', handleScroll);
-}, []); 
+
 
   const handleTransactionClick = (transaction) => {
     if (transaction.type === 'INVOKE' && transaction.version === '0x1' && transaction.status === 'ACCEPTED_ON_L2') {
@@ -89,11 +91,14 @@ const Transactions = () => {
   }
 
   
-  const filteredTransactions = activeTab === 'All' 
-    ? transactions 
-    : transactions.filter(transaction => {
-      return (transaction.type.toLowerCase() === activeTab)
-    });
+  // const filteredTransactions = activeTab === 'All' 
+  //   ? transactions 
+  //   : transactions.filter(transaction => {
+  //     return (transaction.type.toLowerCase() === activeTab)
+  //   });
+
+  const filteredTransactions = transactions;
+
 
 
   return (
@@ -106,7 +111,12 @@ const Transactions = () => {
               <button
                   key={tab}
                   className={`flex-1 py-2 px-3 text-white cursor-pointer text-center ${activeTab === tab ? 'bg-activeColor' : 'bg-customGray hover:bg-hoveractiveColor'} border border-activeColor text-base`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setPage(1);
+                    setTransactions([]);
+                    setHasMore(true);
+                  }}
               >
                   {tab}
               </button>

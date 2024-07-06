@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
-import { ethers, BigNumber } from 'ethers';
 
 
 
@@ -30,7 +29,7 @@ const CallDataTransaction = () => {
 
     const hexToDec = (hex) => web3.utils.hexToNumberString(hex);
     const decToHex = (dec) => web3.utils.toHex(dec);
-    const hexToText = (hex) => web3.utils.hexToUtf8(hex);
+    const hexToText = (hex) => web3.utils.hexToAscii(hex);
     const textToHex = (text) => web3.utils.utf8ToHex(text);
 
     // const hexToDec = (hex) => ethers.BigNumber.from(hex).toString();
