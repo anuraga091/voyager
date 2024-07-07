@@ -5,6 +5,7 @@ import { formatString, formatDate } from '../utils/formatter';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useNavigate } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
 
 
 
@@ -29,6 +30,7 @@ const Transactions = () => {
     setIsLoading(true);
     try {
       const data = await fetchTransactions(page, 20, tab);
+      console.log(data)
       setTransactions((prev) => (page === 1 ? data.transactions : [...prev, ...data.transactions]));
 
       if (data.transactions.length === 0 || data.transactions.length < 20) {
@@ -178,7 +180,7 @@ const Transactions = () => {
                     
                   </td>
                 
-                  <td className=" border-b border-customTableBorder px-4 py-2 text-lg">{formatDate(transaction.fetchedAt)}</td>
+                  <td className=" border-b border-customTableBorder px-4 py-2 text-lg">{formatDistanceToNow(transaction.fetchedAt, { addSuffix: true }).replace(/^about /, '')}</td>
                 
               </tr>
             ))}
