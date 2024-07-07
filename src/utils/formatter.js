@@ -10,6 +10,9 @@ export const formatString = (str) => {
 
 
 export const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return formatDistanceToNow(date, { addSuffix: true }).replace(/^about /, '');
+  if (!isNaN(dateString)){
+    const date = new Date(dateString);
+    return formatDistanceToNow(date, { addSuffix: true }).replace(/^about /, '');
+  }
+  
 }

@@ -1,37 +1,29 @@
 import React,{ useState } from 'react'
 import Tooltip from './Tooltip';
 import CallDataTransaction from './CallDataTransaction';
+import Web3 from 'web3';
+import { formatDate } from '../utils/formatter';
 
-const OverviewTab = () => {
+
+const OverviewTab = (props) => {
     const [activeCallDataTab, setActiveCallDataTab] = useState('Transaction');
+    const web3 = new Web3();
+    const {transactionData} = props
 
+    console.log(transactionData)
+    let actualFee;
+    let maxFee;
+    let gasConsumed;
+    let actualFeeInDollar;
+    let maxFeeInDollar;
 
-    const transaction = {
-        block_number: '643109',
-        timestamp: '24 days ago ( May 23 2024 23:58:06 )',
-        actual_fee: '0.000000350124642817',
-        max_fee: '0.000099999999999999',
-        gas_consumed: '25',
-        tokens_transferred: 'transfer From: 0x0012...5b59 To: 0x046d...25bf For: 0.000099999999999999 ETH ($3.57056)',
-        sender_address: '0x0012d0098294f5bef42722f81be98fb700d8331e75d5a590d2c09398a7465b59',
-        unix_timestamp: '1716487986',
-        nonce: '1892',
-        position: '149',
-        version: '1',
-        l1_txn_hash: '0x2eb719da68d0ad439b10baccc92d74b9660f1579eeaf9b760a511634435f6b70',
-        execution_resources: {
-            steps: 9027,
-            pedersen_builtin_applications: 25,
-            range_check_builtin_applications: 187,
-            ec_op_builtin_applications: 3,
-            data_availability: {
-                l1_gas: 0,
-                l1_data_gas: 192
-            }
-        },
-        signatures: ['0x607a309ffb73ecc1b0f5f23938807543295072f677857e0c28f0df7d5028e38', '0x607a309ffb73ecc1b0f5f23938807543295072f677857e0c28f0df7d5028e38']
-    };
-
+    if (transactionData?.transaction_details?.max_fee !== undefined && transactionData?.transaction_details?.actual_fee && transactionData?.transaction_details?.l1_gas_price){
+        actualFee = web3.utils.fromWei(transactionData?.transaction_details?.actual_fee, 'ether');
+        maxFee = web3.utils.fromWei(transactionData?.transaction_details?.max_fee, 'ether');
+        gasConsumed = parseInt(parseInt(transactionData?.transaction_details?.actual_fee)/parseInt(transactionData?.transaction_details?.l1_gas_price))
+        actualFeeInDollar = actualFee * transactionData?.ethereum?.usd
+        maxFeeInDollar = maxFee * transactionData?.ethereum?.usd
+    }
     
 
     const handleCallDataTabClick = (tab) => {
@@ -52,7 +44,7 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block text-customTextBlue'>{transaction.block_number}</p>
+                        <p className='inline-block text-customTextBlue'>{transactionData?.transaction_details?.block_number}</p>
                     </div>
                 </div>
                 <div className="flex">
@@ -64,7 +56,7 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.timestamp}</p>
+                        <p className='inline-block'>{formatDate(transactionData?.transaction_details?.timestamp*1000)}</p>
                     </div>
                 </div>
                 <div className="flex">
@@ -76,7 +68,9 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.actual_fee} ETH</p>
+                        <span className='inline-block'>{actualFee !== undefined ? actualFee :  '--'}</span>
+                        <span className='inline-block ml-1 text-customTextBlue'>ETH</span>
+                        <span className='inline-block ml-1'>(${actualFeeInDollar !== undefined ? actualFeeInDollar : '--'})</span>
                     </div>
                 </div>
                 <div className="flex">
@@ -88,7 +82,9 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.max_fee} ETH</p>
+                        <span className='inline-block'>{maxFee !== undefined ? maxFee :  '--'}</span>
+                        <span className='inline-block ml-1 text-customTextBlue'>ETH</span>
+                        <span className='inline-block ml-1'>(${maxFeeInDollar !== undefined ? maxFeeInDollar : '--'})</span>
                     </div>
                 </div>
                 <div className="flex">
@@ -100,10 +96,10 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.gas_consumed}</p>
+                        <p className='inline-block'>{gasConsumed !== undefined ? gasConsumed : '--'}</p>
                     </div>
                 </div>
-                <div className="flex">
+                {/* <div className="flex">
                     <div className='flex justify-center items-center'>
                         <Tooltip text="Tokens that were transferred in the transaction">
                             <img src="/question-mark.svg" alt="question mark" height={20} width={20} className='mr-2'/>
@@ -114,7 +110,7 @@ const OverviewTab = () => {
                     <div className='flex-1 border-b border-customTableBorder'>
                         <p className='inline-block'>{transaction.tokens_transferred}</p>
                     </div>
-                </div>
+                </div> */}
                 <div className="flex">
                     <div className='flex justify-center items-center'>
                         <Tooltip text="Sending party of the transaction">
@@ -124,7 +120,7 @@ const OverviewTab = () => {
                     </div>
                 
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.sender_address}</p>
+                        <p className='inline-block'>{transactionData?.transaction_details?.sender_address}</p>
                     </div>
                 </div>
             </div>
@@ -141,7 +137,7 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.unix_timestamp}</p>
+                        <p className='inline-block'>{transactionData?.dev_info?.timestamp}</p>
                     </div>
                 </div>
                 <div className="flex">
@@ -153,7 +149,7 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.nonce}</p>
+                        <p className='inline-block'>{parseInt(transactionData?.dev_info?.nonce)}</p>
                     </div>
                 </div>
                 <div className="flex">
@@ -165,7 +161,7 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.position}</p>
+                        <p className='inline-block'>{transactionData?.dev_info?.position}</p>
                     </div>
                 </div>
                 <div className="flex">
@@ -177,10 +173,10 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder'>
-                        <p className='inline-block'>{transaction.version}</p>
+                        <p className='inline-block'>{transactionData?.dev_info?.version}</p>
                     </div>
                 </div>
-                <div className="flex">
+                {/* <div className="flex">
                     <div className='flex justify-center items-center'>
                         <Tooltip text="L1 transaction that updated the L1 Starknet contract">
                             <img src="/question-mark.svg" alt="question mark" height={20} width={20} className='mr-2'/>
@@ -191,7 +187,7 @@ const OverviewTab = () => {
                     <div className='flex-1 border-b border-customTableBorder'>
                         <p className='inline-block'>{transaction.l1_txn_hash}</p>
                     </div>
-                </div>
+                </div> */}
                 <div className="flex">
                     <div className='flex justify-center items-center'>
                         <Tooltip text="Resources utilized to execute the transaction">
@@ -201,11 +197,11 @@ const OverviewTab = () => {
                     </div>
                     
                     <div className='flex-1 border-b border-customTableBorder pb-2'>
-                        <p className='inline-block rounded border border-invokeBorder bg-invokeBackground text-invokeText text-base px-2'>{transaction.execution_resources.steps} STEPS</p>
+                        <p className='inline-block rounded border border-invokeBorder bg-invokeBackground text-invokeText text-base px-2'>{transactionData?.execution_resources?.steps} STEPS</p>
                         <div className='flex  mt-1'>
-                            <p className='rounded border border-executionResourcesBorderColor bg-executionResourcesBgColor text-executionResourcesColor text-base px-2'>{transaction.execution_resources.pedersen_builtin_applications} PEDERSEN_BUILTIN</p>
-                            <p className='rounded border border-executionResourcesBorderColor bg-executionResourcesBgColor text-executionResourcesColor text-base ml-1 px-2'>{transaction.execution_resources.range_check_builtin_applications} RANGE_CHECK_BUILTIN</p>
-                            <p className='rounded border border-executionResourcesBorderColor bg-executionResourcesBgColor text-executionResourcesColor text-base ml-1 px-2'>{transaction.execution_resources.ec_op_builtin_applications} EC_OP_BUILTIN</p>
+                            <p className='rounded border border-executionResourcesBorderColor bg-executionResourcesBgColor text-executionResourcesColor text-base px-2'>{transactionData?.execution_resources?.pedersen_builtin_applications} PEDERSEN_BUILTIN</p>
+                            <p className='rounded border border-executionResourcesBorderColor bg-executionResourcesBgColor text-executionResourcesColor text-base ml-1 px-2'>{transactionData?.execution_resources?.range_check_builtin_applications} RANGE_CHECK_BUILTIN</p>
+                            <p className='rounded border border-executionResourcesBorderColor bg-executionResourcesBgColor text-executionResourcesColor text-base ml-1 px-2'>{transactionData?.execution_resources?.ec_op_builtin_applications} EC_OP_BUILTIN</p>
                         </div>
                     </div>
                 </div> 
@@ -238,7 +234,7 @@ const OverviewTab = () => {
                 {activeCallDataTab === 'Transaction' ? (
                 
                     <div className="mt-4 bg-callDataBg p-4 rounded-md">
-                        <CallDataTransaction/>
+                        <CallDataTransaction calldata={transactionData?.calldata}/>
                     </div>
                 ) : (
                     <div className="mt-4 bg-callDataBg p-4 rounded-md">
@@ -258,7 +254,7 @@ const OverviewTab = () => {
             </div>
             <div className='flex-1 mt-4' >
             {
-                transaction.signatures.map((sign, index) => (
+                transactionData?.signature?.map((sign, index) => (
                     <div className='flex justify-between border-b border-customTableBorder py-2' key={index}>
                         <p className='inline-block text-xl' >{sign}</p>
                         <button className="ml-2 p-1" onClick={() => navigator.clipboard.writeText(sign)}>

@@ -3,8 +3,6 @@ import { fetchTransactions } from '../services/api';
 import '../App.css'
 import { formatString, formatDate } from '../utils/formatter';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-//import SkeletonRow from './Skeleton';
-//import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useNavigate } from 'react-router-dom';
 
@@ -17,51 +15,52 @@ const Transactions = () => {
   const [copiedHashStatuses, setCopiedHashStatuses] = useState({});
   const [copiedBlockStatuses, setCopiedBlockStatuses] = useState({})
   const [transactions, setTransactions] = useState([]);
-  //const [error, setError] = useState(null);
+  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  const isFetching = useRef(false); // Ref to track if a fetch is in progress
+  const isFetching = useRef(false);
 
 
-  const loadTransactions = async () => {
-    if (isFetching.current) return; // Prevent duplicate calls
+  const loadTransactions = async (tab, page) => {
+    if (isFetching.current) return;
     isFetching.current = true;
     setIsLoading(true);
     try {
-      const data = await fetchTransactions(page, 20);
-      setTransactions((prev) => [...prev, ...data]);
+      const data = await fetchTransactions(page, 20, tab);
+      setTransactions((prev) => (page === 1 ? data.transactions : [...prev, ...data.transactions]));
 
-      if (data.length === 0 || data.length < 20) {
+      if (data.transactions.length === 0 || data.transactions.length < 20) {
         setHasMore(false);
       } else {
         setPage((prev) => prev + 1);
       }
     } catch (error) {
+      setError('Failed to fetch transactions');
       console.error(error);
     }
     setIsLoading(false);
-    isFetching.current = false; // Reset fetch tracker
+    isFetching.current = false;
   };
 
   useEffect(() => {
-    loadTransactions();
-  }, []); // Initial load
+    loadTransactions(activeTab, 1);
+  }, [activeTab]);
 
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerHeight + document.documentElement.scrollTop + 1 >= document.documentElement.offsetHeight) {
         if (!isLoading && hasMore) {
-          loadTransactions();
+          loadTransactions(activeTab, page);
         }
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isLoading, hasMore]); // Add dependencies to control re-renders
+  }, [isLoading, hasMore, page, activeTab]);
 
 
 
@@ -90,12 +89,6 @@ const Transactions = () => {
     }, 2000);
   }
 
-  
-  // const filteredTransactions = activeTab === 'All' 
-  //   ? transactions 
-  //   : transactions.filter(transaction => {
-  //     return (transaction.type.toLowerCase() === activeTab)
-  //   });
 
   const filteredTransactions = transactions;
 

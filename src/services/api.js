@@ -1,13 +1,14 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3001/api'; 
+const BASE_URL = 'http://localhost:3001'; 
 
-export const fetchTransactions = async (page, limit) => {
+export const fetchTransactions = async (page, limit, type) => {
   try {
-    const response = await axios.get(`${BASE_URL}/transactions`, {
+    const response = await axios.get(`${BASE_URL}/api/transactions`, {
       params: {
         page,
-        limit
+        limit,
+        type
       }
     });
     return response.data;  
@@ -17,11 +18,13 @@ export const fetchTransactions = async (page, limit) => {
   }
 };
 
-// export const fetchTransactionData = async (hash, block_number) => {
-//   try {
-
-//   } catch (error){
-
-//   }
-// }
+export const fetchTransactionData = async (hash) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/transaction/${hash}`);
+    return response.data
+  } catch (error){
+    console.error('Error fetching transactions data:', error);
+    throw error; 
+  }
+}
 
